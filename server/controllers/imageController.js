@@ -1,8 +1,9 @@
-import { Axios } from "axios"
+
 import userModel from "../models/user.model.js"
 import FormData from 'form-data'
 import { response } from "express"
-const generateImage = async (req,res)=>{
+import axios from "axios"
+export const generateImage = async (req,res)=>{
     try {
         const {userId,prompt} = req.body
         const user = await userModel.findById(userId)

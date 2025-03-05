@@ -2,7 +2,6 @@ import userModel from "../models/user.model.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-
 const registerUser = async (req,res)=>{
     try {
         const {name,email,password} = req.body
@@ -14,8 +13,8 @@ const registerUser = async (req,res)=>{
         const userData = {name,email,password:hashedPassword}
         const newUser = new userModel(userData)
         const user = await newUser.save()
-        const token = jwt.sign({id:user._id}, process.env.JWT_SECRET)
-        res.json({success:true,user:{name:user.name}})
+        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET)
+        res.json({success:true,token,user:{name:user.name}})
     } catch (error) {
         console.log(error)
         res.json({success:false,message:error.message})
@@ -27,12 +26,12 @@ const loginUser = async (req,res)=>{
         const {email,password} = req.body
         const user = await userModel.findOne({email})
         if(!user){
-            return res({success:false, message:'User does not exist'})
+            return res.json({success:false, message:'User does not exist'})
         }
         const isMatch = await bcrypt.compare(password, user.password)
         if(isMatch){
-            const token = jwt.sign({id:user._id}, process.env.JWT_SECRET)
-            res.json({success:true,user:{name:user.name}}) 
+            const token = jwt.sign({id: user._id}, process.env.JWT_SECRET)
+            res.json({success:true,token,user:{name:user.name}}) 
         }else{
             return res({success:false, message:'Invalid credentials'})
         }
@@ -46,9 +45,10 @@ const userCredits = async (req,res)=>{
     try {
         const {userId} = req.body
         const user = await  userModel.findById(userId)
-        res.json({success:true,credits:user.creditBalnce,user:{name:user.name}})
+        res.json({success:true,credits:user.creditBalance,user:{name:user.name}})
     } catch (error) {
-        
+        console.log(error.message)
+        res.json({success:false,message:error.message})
     }
 }
 export {registerUser,loginUser,userCredits}
